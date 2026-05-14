@@ -39,7 +39,7 @@ on:
 
 jobs:
   plan:
-    runs-on: [sharov-test]
+    runs-on: [self-hosted, Linux, X64]
     environment: ${{ inputs.env }}
     steps:
       - name: plan
