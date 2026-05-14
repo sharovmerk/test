@@ -59,7 +59,7 @@ jobs:
           echo "The saved plan binaries will now be applied — no re-planning will occur."
 
   apply:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Linux, X64]
     environment: ${{ inputs.env }}
     needs: [plan, review-gate]
     steps:
