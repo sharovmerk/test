@@ -1,0 +1,68 @@
+name: "tf rnd"
+
+on:
+  push:
+    branches:
+      - "test-asharov"
+  workflow_dispatch:
+    inputs:
+      env:
+        required: true
+        type: choice
+        description: Environment name
+        options:
+          - dev02
+          - dev01
+          - qa01
+          - stg01
+          - prd01
+      command:
+        description: "Terraform action name"
+        required: true
+        default: "plan+apply"
+        type: choice
+        options:
+          - plan
+          - plan+apply
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
+        description: Environment name
+      command:
+        description: "Terraform action name"
+        required: true
+        type: string
+        default: "plan+apply"
+
+
+jobs:
+  plan:
+    runs-on: self-hosted
+    environment: ${{ inputs.env }}
+    steps:
+      - name: plan
+        run: |
+          echo "plan"
+
+  review-gate:
+    name: "Awaiting Approval — ${{ inputs.env }}"
+    runs-on: self-hosted
+    needs: plan
+    environment: ${{ inputs.env }}   # ← this is what enforces the gate
+    steps:
+      - name: Approval granted
+        run: |
+          echo "Release to ${{ inputs.env }} approved."
+          echo "Plans were saved as artifacts and are visible in the Plan job Step Summaries above."
+          echo "The saved plan binaries will now be applied — no re-planning will occur."
+
+  apply:
+    runs-on: self-hosted
+    environment: ${{ inputs.env }}
+    needs: [plan, review-gate]
+    steps:
+      - name: apply
+        run: |
+          echo "apply"
